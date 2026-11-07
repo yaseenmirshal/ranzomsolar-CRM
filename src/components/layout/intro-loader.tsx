@@ -29,7 +29,7 @@ export function IntroLoader() {
   return (
     <div ref={root} className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 bg-[#0b1724]" aria-hidden>
       <div data-logo><BrandLogo /></div>
-      <div className="h-[2px] w-40 overflow-hidden rounded-full bg-white/10"><div data-bar className="h-full origin-left bg-brand" /></div>
+      <div className="h-[3px] w-40 overflow-hidden rounded-full bg-white/10"><div data-bar className="h-full origin-left bg-brand" /></div>
     </div>
   );
 }
