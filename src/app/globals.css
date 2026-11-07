@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------- Brand design tokens (edit these to rebrand) ---------- */
+:root {
+  --brand: #35a9f4;
+  --brand-foreground: #ffffff;
+  --brand-soft: #eaf6ff;
+  --navy: #10263a;
+
+  --background: #f6f8fb;
+  --foreground: #10263a;
+  --card: #ffffff;
+  --card-foreground: #10263a;
+  --muted: #eef2f7;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #dbe3ec;
+  --ring: #35a9f4;
+  --popover: #ffffff;
+  --popover-foreground: #10263a;
+  --destructive: #e5484d;
+  --success: #16a870;
+  --warning: #e8a317;
+
+  --sidebar: #10263a;
+  --sidebar-foreground: #cbd8e5;
+  --sidebar-muted: #7e92a8;
+  --sidebar-accent: rgba(53, 169, 244, 0.14);
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+
+  --radius: 0.625rem;
+  --shadow-card: 0 1px 2px rgba(16, 38, 58, 0.04), 0 1px 3px rgba(16, 38, 58, 0.05);
+  --shadow-pop: 0 10px 30px -8px rgba(16, 38, 58, 0.18);
+}
+
+.dark {
+  --brand-soft: rgba(53, 169, 244, 0.12);
+  --background: #0b1724;
+  --foreground: #e8eef5;
+  --card: #14283a;
+  --card-foreground: #e8eef5;
+  --muted: #1a3045;
+  --muted-foreground: #8aa0b6;
+  --border: #223a50;
+  --input: #2a4560;
+  --popover: #14283a;
+  --popover-foreground: #e8eef5;
+  --destructive: #f2686d;
+  --success: #34c48e;
+  --warning: #f0b43a;
+
+  --sidebar: #08111c;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 0 0 rgba(0, 0, 0, 0);
+  --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-navy: var(--navy);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+  ::selection { background: color-mix(in srgb, var(--brand) 30%, transparent); }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+@layer utilities {
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .solar-lines {
+    background-image:
+      repeating-linear-gradient(115deg, rgba(53,169,244,0.07) 0 1px, transparent 1px 22px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

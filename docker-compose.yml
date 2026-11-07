@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ranzom-solar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ranzom
+      POSTGRES_PASSWORD: ranzom_dev_local_2026
+      POSTGRES_DB: ranzom_solar_crm
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - solar_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  solar_postgres_data:
