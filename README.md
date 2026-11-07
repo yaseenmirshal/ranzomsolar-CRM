@@ -47,7 +47,7 @@ Use Node.js 22+ and a reachable PostgreSQL database.
 - `npm run db:studio` opens Prisma Studio.
 - `npm run db:create-admin` creates or resets the configured super-admin account.
 
-For production, configure `DATABASE_URL`, `AUTH_SECRET`, and `AUTH_URL` in the hosting provider's server-only environment settings, and run `npm run db:deploy` as part of deployment.
+For Vercel production, configure a valid PostgreSQL `DATABASE_URL` and a generated `AUTH_SECRET` in the project's server-only Environment Variables. `AUTH_URL` is not required on Vercel because Auth.js detects the deployment URL. Before the first login, run `npm run db:deploy` against the production database, then create the initial administrator with `npm run db:create-admin` using the production `DATABASE_URL` and administrator credentials. Do not put these production values in `NEXT_PUBLIC_` variables or commit them.
 
 ## Current implementation status
 
