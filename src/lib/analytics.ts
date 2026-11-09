@@ -41,16 +41,16 @@ export function monthlySeries(d: Dataset, months = 6) {
 }
 
 export function funnel(d: Dataset) {
-  const surveyed = new Set(d.surveys.map((s) => s.enquiryId)).size;
+  const followedUp = new Set(d.surveys.map((s) => s.enquiryId)).size;
   const quoted = new Set(d.quotations.map((q) => q.enquiryId)).size;
   const ordered = new Set(d.orders.map((o) => o.enquiryId)).size;
-  const installed = d.installations.filter((i) => i.stage === "Completed").length;
+  const completed = d.installations.filter((i) => i.stage === "Completed").length;
   return [
-    { stage: "Enquiries", value: d.enquiries.length },
-    { stage: "Site surveys", value: surveyed },
-    { stage: "Quotations", value: quoted },
+    { stage: "Leads", value: d.enquiries.length },
+    { stage: "Followed up", value: followedUp },
+    { stage: "Proposals", value: quoted },
     { stage: "Orders", value: ordered },
-    { stage: "Installed", value: installed },
+    { stage: "Projects", value: completed },
   ];
 }
 
@@ -58,12 +58,6 @@ export function countBy<T>(items: T[], pick: (t: T) => string | undefined) {
   const map = new Map<string, number>();
   items.forEach((i) => { const k = pick(i); if (k) map.set(k, (map.get(k) ?? 0) + 1); });
   return [...map.entries()].map(([name, value]) => ({ name, value }));
-}
-
-export const capacityOrder = ["3 KW", "5 KW", "8 KW", "10 KW", "15 KW", "50 kw", "65 kw"];
-export function capacityDistribution(enquiries: Enquiry[]) {
-  const c = countBy(enquiries, (e) => e.systemCapacity);
-  return capacityOrder.map((name) => ({ name: name.toUpperCase(), value: c.find((x) => x.name === name)?.value ?? 0 }));
 }
 
 export function teamPerformance(d: Dataset, team: { name: string }[]) {

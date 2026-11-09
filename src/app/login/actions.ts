@@ -2,13 +2,18 @@
 
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
-import { redirect } from "next/navigation";
 
-export async function authenticate(formData: FormData) {
+export async function loginAction(_previousState: { error: string } | undefined, formData: FormData) {
   try {
-    await signIn("credentials", formData);
+    await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: "/dashboard",
+    });
   } catch (error) {
-    if (error instanceof AuthError) redirect("/login?error=credentials");
+    if (error instanceof AuthError) {
+      return { error: "The email or password is incorrect, or this account is inactive." };
+    }
     throw error;
   }
 }

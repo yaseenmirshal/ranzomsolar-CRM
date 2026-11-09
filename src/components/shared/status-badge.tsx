@@ -8,11 +8,11 @@ const TONES: Record<string, Tone> = {
   Pending: "warning", Scheduled: "brand", Rescheduled: "neutral", Cancelled: "danger",
   Draft: "neutral", Sent: "brand", Accepted: "success", Rejected: "danger", Expired: "neutral",
   Unpaid: "danger", "Partially Paid": "warning", Paid: "success", Issued: "brand", Overdue: "danger",
-  Feasible: "success", "Feasible with changes": "warning", "Not feasible": "danger",
-  Planning: "neutral", "Material Dispatch": "brand", Installing: "warning", Commissioning: "brand",
+  "On track": "success", "Needs follow-up": "warning", Blocked: "danger",
+  Planning: "neutral", "On Hold": "warning",
   Low: "neutral", Medium: "brand", High: "warning", Urgent: "danger",
   Open: "danger", "In Progress": "warning", Resolved: "success",
-  Residential: "brand", Commercial: "neutral", "Follow up": "warning",
+  Individual: "brand", Organization: "neutral", Customer: "success",
   "Low stock": "danger", "In stock": "success",
 };
 

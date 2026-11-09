@@ -1,26 +1,20 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/prisma/db";
 import type { CustomerListItem } from "./types";
 
-export const customerFinancials = {
-  orders: { select: { orderValue: true } },
-  invoices: { select: { balanceDue: true } },
-} as const;
-
-export type CustomerWithFinancials = Prisma.CustomerGetPayload<{
-  include: typeof customerFinancials;
-}>;
+type CustomerWithFinancials = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  address: string | null;
+  district: string | null;
+  category: CustomerListItem["category"];
+  createdAt: Date;
+  orders: { projectCount: number; projectValue: string | null };
+  invoices: { outstandingBalance: string | null };
+};
 
 export function toCustomerListItem(customer: CustomerWithFinancials): CustomerListItem {
-  const projectValue = customer.orders.reduce(
-    (total, order) => total.plus(order.orderValue),
-    new Prisma.Decimal(0),
-  );
-  const outstandingBalance = customer.invoices.reduce(
-    (total, invoice) => total.plus(invoice.balanceDue),
-    new Prisma.Decimal(0),
-  );
-
   return {
     id: customer.id,
     name: customer.name,
@@ -29,18 +23,27 @@ export function toCustomerListItem(customer: CustomerWithFinancials): CustomerLi
     address: customer.address,
     district: customer.district,
     category: customer.category,
-    projects: customer.orders.length,
-    projectValue: projectValue.toFixed(2),
-    outstandingBalance: outstandingBalance.toFixed(2),
+    projects: customer.orders.projectCount,
+    projectValue: customer.orders.projectValue ?? "0.00",
+    outstandingBalance: customer.invoices.outstandingBalance ?? "0.00",
     createdAt: customer.createdAt.toISOString(),
   };
 }
 
 export async function getActiveCustomers() {
-  const customers = await prisma.customer.findMany({
-    where: { status: "ACTIVE" },
-    include: customerFinancials,
-    orderBy: [{ createdAt: "desc" }, { name: "asc" }],
-  });
+  const customers = await db.orm.public.Customer
+    .include("orders", (orders) =>
+      orders.combine({
+        projectCount: orders.count(),
+        projectValue: orders.sum("orderValue"),
+      }),
+    )
+    .include("invoices", (invoices) =>
+      invoices.combine({ outstandingBalance: invoices.sum("balanceDue") }),
+    )
+    .where({ status: "ACTIVE" })
+    .orderBy([(customer) => customer.createdAt.desc(), (customer) => customer.name.asc()])
+    .all();
+
   return customers.map(toCustomerListItem);
 }

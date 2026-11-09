@@ -1,20 +1,27 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { signOut } from "next-auth/react";
-import { Bell, ChevronRight, LogOut, Menu, Moon, Plus, Search, Settings, Sun, User } from "lucide-react";
+import { Bell, Check, ChevronRight, LogOut, Menu, Moon, Palette, Plus, Search, Sun, UserRound } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { routeLabels } from "@/lib/navigation";
-import { initials, timeAgo } from "@/lib/format";
+import { timeAgo } from "@/lib/format";
 import { useDataStore } from "@/store/data-store";
-import { useUiStore } from "@/store/ui-store";
+import { useUiStore, type Palette as PaletteName } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
+
+const palettes: { id: PaletteName; label: string; color: string }[] = [
+  { id: "ocean", label: "Ocean", color: "#35a9f4" },
+  { id: "violet", label: "Violet", color: "#8b5cf6" },
+  { id: "emerald", label: "Emerald", color: "#10b981" },
+  { id: "sunset", label: "Sunset", color: "#f9735b" },
+];
 
 function Breadcrumbs() {
   const pathname = usePathname();
@@ -58,7 +65,7 @@ function GlobalSearch() {
         onChange={(e) => { setQ(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
-        placeholder="Search customers, phone, place…"
+        placeholder="Search leads, customers, phone…"
         aria-label="Global search"
         className="bg-muted/60 pl-9 shadow-none"
       />
@@ -132,11 +139,15 @@ function ThemeSwitcher() {
 export function Header({ user }: { user: { name: string | null; email: string | null } }) {
   const router = useRouter();
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
+  const palette = useUiStore((s) => s.palette);
+  const setPalette = useUiStore((s) => s.setPalette);
+  const loadPrefs = useUiStore((s) => s.loadPrefs);
+  useEffect(() => loadPrefs(), [loadPrefs]);
   const quick = [
-    { label: "New enquiry", href: "/enquiries?new=1" },
+    { label: "Add lead", href: "/enquiries?new=1" },
     { label: "Schedule follow-up", href: "/follow-ups?new=1" },
-    { label: "Book site survey", href: "/site-surveys?new=1" },
-    { label: "Create quotation", href: "/quotations?new=1" },
+    { label: "Add task", href: "/site-surveys?new=1" },
+    { label: "Create proposal", href: "/quotations?new=1" },
     { label: "Record payment", href: "/payments?new=1" },
   ];
   return (
@@ -158,17 +169,31 @@ export function Header({ user }: { user: { name: string | null; email: string | 
       <ThemeSwitcher />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button aria-label="User menu" className="flex size-9 items-center justify-center rounded-full bg-navy text-xs font-semibold text-white ring-offset-2 ring-offset-card hover:ring-2 hover:ring-brand/40 dark:bg-brand">
-            {initials(user.name ?? user.email ?? "User")}
-          </button>
+          <Button variant="ghost" size="icon" aria-label="Color theme"><Palette /></Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{user.name ?? "User"}<br /><span className="font-normal">{user.email}</span></DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push("/settings")}><User />Profile</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => router.push("/settings")}><Settings />Settings</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => { void signOut({ redirectTo: "/login" }); }}><LogOut />Sign out</DropdownMenuItem>
+          <DropdownMenuLabel>Gradient palette</DropdownMenuLabel>
+          {palettes.map((item) => (
+            <DropdownMenuItem key={item.id} onSelect={() => setPalette(item.id)}>
+              <span className="size-3 rounded-full" style={{ background: item.color }} aria-hidden />
+              <span className="flex-1">{item.label}</span>
+              {palette === item.id && <Check className="size-4" aria-label="Selected" />}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="Account menu"><UserRound /></Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>
+            <span className="block max-w-56 truncate">{user.name || "Account"}</span>
+            {user.email && <span className="block max-w-56 truncate text-xs font-normal text-muted-foreground">{user.email}</span>}
+          </DropdownMenuLabel>
+          <DropdownMenuItem onSelect={() => { void signOut({ redirectTo: "/login" }); }}>
+            <LogOut />Sign out
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

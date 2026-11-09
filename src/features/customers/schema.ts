@@ -5,9 +5,9 @@ export const customerSchema = z.object({
   phone: z.string().trim().refine(
     (value) => {
       const digits = value.replace(/\D/g, "");
-      return /^[6-9]\d{9}$/.test(digits) || /^91[6-9]\d{9}$/.test(digits);
+      return digits.length >= 7 && digits.length <= 15;
     },
-    "Enter a valid 10-digit Indian mobile number.",
+    "Enter a valid phone number.",
   ),
   email: z.union([z.literal(""), z.string().trim().email("Enter a valid email address.")]),
   address: z.string().trim().max(500),

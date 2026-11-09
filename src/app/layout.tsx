@@ -6,8 +6,8 @@ import { Providers } from "@/components/shared/providers";
 
 
 export const metadata: Metadata = {
-  title: { default: "Ranzom Solar CRM", template: "%s · Ranzom Solar CRM" },
-  description: "Solar business management CRM template for Ranzom Solar Solutions (demo data).",
+  title: { default: "Ranzom CRM", template: "%s · Ranzom CRM" },
+  description: "A flexible customer and business management workspace by Ranzom Tech.",
 };
 export const viewport: Viewport = { themeColor: "#10263a", width: "device-width", initialScale: 1 };
 

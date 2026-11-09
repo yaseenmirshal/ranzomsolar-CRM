@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
-  ArrowDownToLine, ArrowUpFromLine, CalendarClock, ClipboardCheck, FileText, HardHat, MoreHorizontal,
+  ArrowDownToLine, ArrowUpFromLine, CalendarClock, ClipboardCheck, FileText, FolderKanban, MoreHorizontal,
   Package, Pencil, PhoneCall, Plus, ShoppingCart, Trash2, Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -44,7 +44,7 @@ const optionList = (values: readonly string[]) => values.map((value) => ({ value
 const choices = (values: string[]) => values.map((value) => ({ value, label: value }));
 const text = (value: string | number | undefined) => value === undefined ? "" : String(value);
 const inventoryCategories: InventoryItem["category"][] = [
-  "Solar Panels", "Inverters", "Batteries", "Mounting Structures", "Cables", "Electrical Components", "Other Materials",
+  "Products", "Supplies", "Equipment", "Services", "Software", "Office", "Other",
 ];
 
 function getFields(module: OperationalModule, data: ReturnType<typeof useDataStore.getState>): Field[] {
@@ -57,14 +57,14 @@ function getFields(module: OperationalModule, data: ReturnType<typeof useDataSto
       { key: "name", label: "Contact name", required: true },
       { key: "phone", label: "Phone", type: "tel", required: true },
       { key: "email", label: "Email", type: "email" },
-      { key: "role", label: "Role", type: "select", options: optionList(["Lead", "Follow up"]), required: true },
-      { key: "enquiryId", label: "Customer / enquiry", type: "select", options: enquiryOptions, required: true },
+      { key: "role", label: "Relationship", type: "select", options: optionList(["Lead", "Customer"]), required: true },
+      { key: "enquiryId", label: "Customer / lead", type: "select", options: enquiryOptions, required: true },
     ];
     case "follow-ups": return [
-      { key: "enquiryId", label: "Customer / enquiry", type: "select", options: enquiryOptions, required: true },
+      { key: "enquiryId", label: "Customer / lead", type: "select", options: enquiryOptions, required: true },
       { key: "date", label: "Follow-up date", type: "date", required: true },
       { key: "time", label: "Time", type: "time", required: true },
-      { key: "type", label: "Channel", type: "select", options: optionList(["Call", "WhatsApp", "Site Visit", "Email", "Meeting"]), required: true },
+      { key: "type", label: "Channel", type: "select", options: optionList(["Call", "Email", "Meeting", "Video call", "Other"]), required: true },
       { key: "assignedTo", label: "Assigned to", type: "select", options: teamOptions, required: true },
       { key: "status", label: "Status", type: "select", options: optionList(["Pending", "Completed", "Rescheduled"]), required: true },
       { key: "notes", label: "Notes", type: "textarea" },
@@ -72,22 +72,22 @@ function getFields(module: OperationalModule, data: ReturnType<typeof useDataSto
       { key: "nextAction", label: "Next action" },
     ];
     case "site-surveys": return [
-      { key: "enquiryId", label: "Customer / enquiry", type: "select", options: enquiryOptions, required: true },
-      { key: "date", label: "Survey date", type: "date", required: true },
-      { key: "surveyor", label: "Surveyor", type: "select", options: teamOptions, required: true },
+      { key: "enquiryId", label: "Customer / lead", type: "select", options: enquiryOptions, required: true },
+      { key: "date", label: "Task date", type: "date", required: true },
+      { key: "surveyor", label: "Owner", type: "select", options: teamOptions, required: true },
       { key: "location", label: "Location", required: true },
-      { key: "roofType", label: "Roof type", type: "select", options: optionList(ROOF_TYPES), required: true },
-      { key: "feasibility", label: "Feasibility", type: "select", options: optionList(["Pending", "Feasible", "Feasible with changes", "Not feasible"]), required: true },
+      { key: "roofType", label: "Delivery mode", type: "select", options: optionList(ROOF_TYPES), required: true },
+      { key: "feasibility", label: "Progress", type: "select", options: optionList(["Pending", "On track", "Needs follow-up", "Blocked"]), required: true },
       { key: "status", label: "Status", type: "select", options: optionList(["Scheduled", "Completed", "Cancelled"]), required: true },
-      { key: "notes", label: "Survey notes", type: "textarea" },
+      { key: "notes", label: "Task notes", type: "textarea" },
     ];
     case "quotations": return [
-      { key: "enquiryId", label: "Customer / enquiry", type: "select", options: enquiryOptions, required: true },
-      { key: "solarType", label: "Solar type", type: "select", options: optionList(SOLAR_TYPES), required: true },
-      { key: "capacity", label: "System capacity", type: "select", options: optionList(CAPACITIES), required: true },
-      { key: "panelPrice", label: "Solar panels (INR)", type: "number", min: 0, required: true },
-      { key: "inverterPrice", label: "Inverter & balance of system (INR)", type: "number", min: 0, required: true },
-      { key: "installationCharges", label: "Installation charges (INR)", type: "number", min: 0, required: true },
+      { key: "enquiryId", label: "Customer / lead", type: "select", options: enquiryOptions, required: true },
+      { key: "solarType", label: "Offering", type: "select", options: optionList(SOLAR_TYPES), required: true },
+      { key: "capacity", label: "Plan tier", type: "select", options: optionList(CAPACITIES), required: true },
+      { key: "panelPrice", label: "Product or service package (INR)", type: "number", min: 0, required: true },
+      { key: "inverterPrice", label: "Onboarding and setup (INR)", type: "number", min: 0, required: true },
+      { key: "installationCharges", label: "Delivery and support (INR)", type: "number", min: 0, required: true },
       { key: "otherCosts", label: "Other costs (INR)", type: "number", min: 0, required: true },
       { key: "discount", label: "Discount (INR)", type: "number", min: 0, required: true },
       { key: "taxPercent", label: "Tax (%)", type: "number", min: 0, required: true },
@@ -97,19 +97,19 @@ function getFields(module: OperationalModule, data: ReturnType<typeof useDataSto
       { key: "notes", label: "Notes", type: "textarea" },
     ];
     case "orders": return [
-      { key: "quotationId", label: "Quotation", type: "select", options: quotationOptions, required: true },
+      { key: "quotationId", label: "Proposal", type: "select", options: quotationOptions, required: true },
       { key: "orderDate", label: "Order date", type: "date", required: true },
-      { key: "expectedInstallation", label: "Expected installation", type: "date" },
+      { key: "expectedInstallation", label: "Expected fulfillment", type: "date" },
       { key: "advance", label: "Advance received (INR)", type: "number", min: 0, required: true },
       { key: "paymentStatus", label: "Payment status", type: "select", options: optionList(["Unpaid", "Partially Paid", "Paid"]), required: true },
     ];
     case "installations": return [
       { key: "orderId", label: "Sales order", type: "select", options: orderOptions, required: true },
-      { key: "team", label: "Installation team", required: true },
+      { key: "team", label: "Project team", required: true },
       { key: "startDate", label: "Start date", type: "date", required: true },
       { key: "endDate", label: "Target completion", type: "date" },
-      { key: "stage", label: "Project stage", type: "select", options: optionList(["Planning", "Material Dispatch", "Installing", "Commissioning", "Completed"]), required: true },
-      { key: "equipment", label: "Equipment", type: "textarea" },
+      { key: "stage", label: "Project stage", type: "select", options: optionList(["Planning", "In Progress", "On Hold", "Completed"]), required: true },
+      { key: "equipment", label: "Resources and deliverables", type: "textarea" },
     ];
     case "inventory": return [
       { key: "name", label: "Item name", required: true },
@@ -119,7 +119,7 @@ function getFields(module: OperationalModule, data: ReturnType<typeof useDataSto
       { key: "model", label: "Model", required: true },
       { key: "quantity", label: "On hand", type: "number", min: 0, required: true },
       { key: "unit", label: "Unit", required: true },
-      { key: "purchasePrice", label: "Purchase price (INR)", type: "number", min: 0, required: true },
+      { key: "purchasePrice", label: "Unit cost (INR)", type: "number", min: 0, required: true },
       { key: "lowStockThreshold", label: "Low-stock threshold", type: "number", min: 0, required: true },
     ];
   }
@@ -185,13 +185,13 @@ function getColumns(module: OperationalModule): Column[] {
     ];
     case "site-surveys": return [
       { key: "customer", label: "Customer" }, { key: "location", label: "Location" },
-      { key: "date", label: "Survey date", format: "date" }, { key: "surveyor", label: "Surveyor" },
-      { key: "roofType", label: "Roof" }, { key: "feasibility", label: "Feasibility", format: "status" },
+      { key: "date", label: "Task date", format: "date" }, { key: "surveyor", label: "Owner" },
+      { key: "roofType", label: "Delivery mode" }, { key: "feasibility", label: "Progress", format: "status" },
       { key: "status", label: "Status", format: "status" },
     ];
     case "quotations": return [
-      { key: "number", label: "Quotation #" }, { key: "customer", label: "Customer" },
-      { key: "capacity", label: "Capacity" }, { key: "solarType", label: "System" },
+      { key: "number", label: "Proposal #" }, { key: "customer", label: "Customer" },
+      { key: "capacity", label: "Plan tier" }, { key: "solarType", label: "Offering" },
       { key: "total", label: "Total", format: "money" }, { key: "validUntil", label: "Valid until", format: "date" },
       { key: "status", label: "Status", format: "status" },
     ];
@@ -199,11 +199,11 @@ function getColumns(module: OperationalModule): Column[] {
       { key: "number", label: "Order #" }, { key: "customer", label: "Customer" },
       { key: "orderDate", label: "Order date", format: "date" }, { key: "value", label: "Order value", format: "money" },
       { key: "advance", label: "Advance", format: "money" }, { key: "balance", label: "Balance", format: "money" },
-      { key: "paymentStatus", label: "Payment", format: "status" }, { key: "expectedInstallation", label: "Installation", format: "date" },
+      { key: "paymentStatus", label: "Payment", format: "status" }, { key: "expectedInstallation", label: "Expected fulfillment", format: "date" },
     ];
     case "installations": return [
       { key: "name", label: "Project" }, { key: "customer", label: "Customer" },
-      { key: "capacity", label: "Capacity" }, { key: "team", label: "Team" },
+      { key: "capacity", label: "Plan tier" }, { key: "team", label: "Team" },
       { key: "stage", label: "Stage", format: "status" }, { key: "checklist", label: "Checklist" },
       { key: "startDate", label: "Start date", format: "date" },
     ];
@@ -228,19 +228,19 @@ function defaultForm(module: OperationalModule, data: ReturnType<typeof useDataS
       assignedTo: data.team[0]?.name ?? "", status: "Pending", notes: "", outcome: "", nextAction: "",
     };
     case "site-surveys": return {
-      enquiryId: commonEnquiry, date: today(), surveyor: data.team.find((member) => member.role === "Site Surveyor")?.name ?? "",
-      location: firstEnquiry?.place ?? "", roofType: firstEnquiry?.roofType ?? "Flat", feasibility: "Pending",
+      enquiryId: commonEnquiry, date: today(), surveyor: data.team[0]?.name ?? "",
+      location: firstEnquiry?.place ?? "", roofType: firstEnquiry?.roofType ?? "Remote", feasibility: "Pending",
       status: "Scheduled", notes: "",
     };
     case "quotations": return {
-      enquiryId: commonEnquiry, solarType: firstEnquiry?.solarType ?? "On-Grid",
-      capacity: firstEnquiry?.systemCapacity ?? "5 KW",
-      panelPrice: String((Number.parseInt(firstEnquiry?.systemCapacity ?? "5", 10) || 5) * 24000),
-      inverterPrice: String((Number.parseInt(firstEnquiry?.systemCapacity ?? "5", 10) || 5) * 17000),
-      installationCharges: String((Number.parseInt(firstEnquiry?.systemCapacity ?? "5", 10) || 5) * 4000),
+      enquiryId: commonEnquiry, solarType: firstEnquiry?.solarType ?? "Service",
+      capacity: firstEnquiry?.systemCapacity ?? "Standard",
+      panelPrice: "24000",
+      inverterPrice: "17000",
+      installationCharges: "4000",
       otherCosts: "0", discount: "0", taxPercent: "8.9", status: "Draft",
       validUntil: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-      paymentTerms: "30% advance, 60% on delivery, 10% after commissioning", notes: "",
+      paymentTerms: "50% at start, 50% on completion", notes: "",
     };
     case "orders": return {
       quotationId: firstQuotation?.id ?? "", orderDate: today(),
@@ -253,7 +253,7 @@ function defaultForm(module: OperationalModule, data: ReturnType<typeof useDataS
       stage: "Planning", equipment: "",
     };
     case "inventory": return {
-      name: "", sku: "", category: "Solar Panels", brand: "", model: "", quantity: "0",
+      name: "", sku: "", category: "Products", brand: "", model: "", quantity: "0",
       unit: "pcs", purchasePrice: "0", lowStockThreshold: "0",
     };
   }
@@ -261,11 +261,11 @@ function defaultForm(module: OperationalModule, data: ReturnType<typeof useDataS
 
 function moduleIntro(module: OperationalModule) {
   const copy: Record<OperationalModule, string> = {
-    contacts: "People connected to customer enquiries, with direct contact details and relationship context.",
+    contacts: "People connected to customer records, with contact details and relationship context.",
     "follow-ups": "A working queue for customer calls, visits and other next steps across the sales pipeline.",
-    "site-surveys": "Schedule and track rooftop assessments, feasibility and survey outcomes.",
-    quotations: "Prepare customer proposals and track their validity and decision status.",
-    orders: "Confirmed customer orders, payment progress and installation dates.",
+    "site-surveys": "Schedule and track work items, owners and progress.",
+    quotations: "Prepare customer proposals and track validity and decision status.",
+    orders: "Confirmed customer orders, payment progress and fulfillment dates.",
     installations: "Project delivery stages, assigned teams and checklist progress.",
     inventory: "Stock on hand, unit costs and items at or below their reorder threshold.",
   };
@@ -274,8 +274,8 @@ function moduleIntro(module: OperationalModule) {
 
 function recordLabel(module: OperationalModule) {
   const labels: Record<OperationalModule, string> = {
-    contacts: "contact", "follow-ups": "follow-up", "site-surveys": "site survey",
-    quotations: "quotation", orders: "order", installations: "installation", inventory: "inventory item",
+    contacts: "contact", "follow-ups": "follow-up", "site-surveys": "task",
+    quotations: "proposal", orders: "order", installations: "project", inventory: "inventory item",
   };
   return labels[module];
 }
@@ -610,8 +610,8 @@ function nextDocumentNumber(items: { number: string }[], prefix: string) {
 
 function defaultChecklist(): InstallationProject["checklist"] {
   return [
-    "Material delivered", "Structure erected", "Panels mounted", "DC/AC cabling",
-    "Inverter commissioning", "Grid sync", "Customer handover",
+    "Kickoff completed", "Requirements confirmed", "Work in progress", "Quality review",
+    "Customer review", "Final updates", "Project handoff",
   ].map((label, index) => ({ id: newId(`check-${index}`), label, done: false }));
 }
 
@@ -651,7 +651,7 @@ async function saveRecord(
     case "follow-ups": {
       const old = previous(data.followUps);
       const enquiry = selectedEnquiry(form.enquiryId);
-      if (!enquiry) throw new Error("Select an existing enquiry for this follow-up.");
+      if (!enquiry) throw new Error("Select an existing lead for this follow-up.");
       const item: FollowUp = {
         ...stamp(id, old?.createdAt), enquiryId: enquiry.id, customer: enquiry.name, contactNo: enquiry.contactNo,
         date: form.date, time: form.time, assignedTo: form.assignedTo, type: form.type as FollowUp["type"],
@@ -665,7 +665,7 @@ async function saveRecord(
     case "site-surveys": {
       const old = previous(data.surveys);
       const enquiry = selectedEnquiry(form.enquiryId);
-      if (!enquiry) throw new Error("Select an existing enquiry for this survey.");
+      if (!enquiry) throw new Error("Select an existing lead for this task.");
       const item: SiteSurvey = {
         ...stamp(id, old?.createdAt), enquiryId: enquiry.id, customer: enquiry.name, date: form.date,
         surveyor: form.surveyor, location: form.location.trim(), category: enquiry.category,
@@ -683,24 +683,24 @@ async function saveRecord(
     case "quotations": {
       const old = previous(data.quotations);
       const enquiry = selectedEnquiry(form.enquiryId);
-      if (!enquiry) throw new Error("Select an existing enquiry for this quotation.");
+      if (!enquiry) throw new Error("Select an existing lead for this proposal.");
       const capacity = form.capacity as Quotation["capacity"];
-      const kw = Number.parseInt(capacity, 10) || 5;
+      const tier = Math.max(1, CAPACITIES.indexOf(capacity) + 1);
       const lines = old?.lines.map((line) => ({ ...line })) ?? [
-        { id: newId("line"), description: "Solar panels", quantity: 1, unitPrice: number("panelPrice", kw * 24000) },
-        { id: newId("line"), description: "Inverter and balance of system", quantity: 1, unitPrice: number("inverterPrice", kw * 17000) },
+        { id: newId("line"), description: "Product or service package", quantity: 1, unitPrice: number("panelPrice", tier * 24000) },
+        { id: newId("line"), description: "Onboarding and setup", quantity: 1, unitPrice: number("inverterPrice", tier * 17000) },
       ];
       if (old) {
         lines[0] = { ...lines[0], unitPrice: number("panelPrice", lines[0].unitPrice) };
         if (lines[1]) lines[1] = { ...lines[1], unitPrice: number("inverterPrice", lines[1].unitPrice) };
       }
       const item: Quotation = {
-        ...stamp(id, old?.createdAt), number: old?.number ?? nextDocumentNumber(data.quotations, "RSQ"),
+        ...stamp(id, old?.createdAt), number: old?.number ?? nextDocumentNumber(data.quotations, "RZP"),
         enquiryId: enquiry.id, customer: enquiry.name, solarType: form.solarType as Quotation["solarType"],
-        capacity, panelDetails: old?.panelDetails ?? `${kw} KW solar panel system`,
-        inverterDetails: old?.inverterDetails ?? `${kw} KW solar inverter`,
-        batteryDetails: old?.batteryDetails, mountingStructure: old?.mountingStructure ?? "Standard rooftop mounting structure",
-        lines, installationCharges: number("installationCharges", old?.installationCharges ?? kw * 4000),
+        capacity, panelDetails: old?.panelDetails ?? `${capacity} product or service package`,
+        inverterDetails: old?.inverterDetails ?? `${capacity} service plan`,
+        batteryDetails: old?.batteryDetails, mountingStructure: old?.mountingStructure ?? "Standard delivery plan",
+        lines, installationCharges: number("installationCharges", old?.installationCharges ?? tier * 4000),
         otherCosts: number("otherCosts", old?.otherCosts ?? 0),
         discount: number("discount", old?.discount ?? 0), taxPercent: number("taxPercent", old?.taxPercent ?? 8.9),
         validUntil: form.validUntil,
@@ -720,7 +720,7 @@ async function saveRecord(
           quotation.installationCharges + quotation.otherCosts - quotation.discount) * (1 + quotation.taxPercent / 100),
       );
       const item: Order = {
-        ...stamp(id, old?.createdAt), number: old?.number ?? nextDocumentNumber(data.orders, "RSO"),
+        ...stamp(id, old?.createdAt), number: old?.number ?? nextDocumentNumber(data.orders, "RZO"),
         quotationId: quotation.id, enquiryId: quotation.enquiryId, customer: quotation.customer,
         orderDate: form.orderDate, value: old?.value ?? quotationTotal, advance: number("advance", old?.advance ?? 0),
         paymentStatus: form.paymentStatus as Order["paymentStatus"],
@@ -733,13 +733,13 @@ async function saveRecord(
     case "installations": {
       const old = previous(data.installations);
       const order = selectedOrder(form.orderId);
-      if (!order) throw new Error("Select an existing sales order for this installation.");
+      if (!order) throw new Error("Select an existing order for this project.");
       const enquiry = selectedEnquiry(order.enquiryId);
       const item: InstallationProject = {
-        ...stamp(id, old?.createdAt), name: old?.name ?? `${enquiry?.systemCapacity ?? "Solar"} installation — ${order.customer}`,
+        ...stamp(id, old?.createdAt), name: old?.name ?? `${order.customer} project`,
         orderId: order.id, enquiryId: order.enquiryId, customer: order.customer, team: form.team,
         startDate: form.startDate, endDate: form.endDate || undefined,
-        capacity: old?.capacity ?? enquiry?.systemCapacity ?? "5 KW", equipment: form.equipment.trim(),
+        capacity: old?.capacity ?? enquiry?.systemCapacity ?? "Standard", equipment: form.equipment.trim(),
         checklist: checklist.length ? checklist : old?.checklist ?? defaultChecklist(),
         stage: form.stage as InstallationProject["stage"], photos: old?.photos ?? [],
         completionDate: form.stage === "Completed" ? old?.completionDate ?? today() : undefined,
@@ -767,9 +767,9 @@ function statsFor(module: OperationalModule, rows: TableRecord[]) {
   const count = (key: string, value: string) => rows.filter((row) => row[key] === value).length;
   const specs: Record<OperationalModule, { label: string; value: number; icon: typeof Users; hint: string; format?: (value: number) => string }[]> = {
     contacts: [
-      { label: "Total contacts", value: rows.length, icon: Users, hint: "Linked to enquiries" },
+      { label: "Total contacts", value: rows.length, icon: Users, hint: "Linked to customer records" },
       { label: "Lead contacts", value: count("role", "Lead"), icon: PhoneCall, hint: "Potential customers" },
-      { label: "Follow-up contacts", value: count("role", "Follow up"), icon: CalendarClock, hint: "Require continued engagement" },
+      { label: "Customer contacts", value: count("role", "Customer"), icon: CalendarClock, hint: "Linked to customer records" },
     ],
     "follow-ups": [
       { label: "Total follow-ups", value: rows.length, icon: PhoneCall, hint: "All scheduled activity" },
@@ -777,24 +777,24 @@ function statsFor(module: OperationalModule, rows: TableRecord[]) {
       { label: "Completed", value: count("status", "Completed"), icon: ClipboardCheck, hint: "Logged outcomes" },
     ],
     "site-surveys": [
-      { label: "Total surveys", value: rows.length, icon: ClipboardCheck, hint: "Scheduled and completed" },
-      { label: "Scheduled", value: count("status", "Scheduled"), icon: CalendarClock, hint: "Upcoming site visits" },
-      { label: "Feasible", value: count("feasibility", "Feasible") + count("feasibility", "Feasible with changes"), icon: HardHat, hint: "Suitable for solar" },
+      { label: "Total tasks", value: rows.length, icon: ClipboardCheck, hint: "Scheduled and completed" },
+      { label: "Scheduled", value: count("status", "Scheduled"), icon: CalendarClock, hint: "Upcoming work" },
+      { label: "On track", value: count("feasibility", "On track"), icon: ClipboardCheck, hint: "Progress recorded" },
     ],
     quotations: [
-      { label: "Total quotations", value: rows.length, icon: FileText, hint: "Customer proposals" },
+      { label: "Total proposals", value: rows.length, icon: FileText, hint: "Customer offers" },
       { label: "Awaiting response", value: count("status", "Sent"), icon: CalendarClock, hint: "Sent to customers" },
       { label: "Accepted", value: count("status", "Accepted"), icon: ClipboardCheck, hint: "Ready for order" },
     ],
     orders: [
-      { label: "Total orders", value: rows.length, icon: ShoppingCart, hint: "Confirmed sales" },
+      { label: "Total orders", value: rows.length, icon: ShoppingCart, hint: "Confirmed purchases" },
       { label: "Partially paid", value: count("paymentStatus", "Partially Paid"), icon: FileText, hint: "Payment in progress" },
       { label: "Order value", value: rows.reduce((sum, row) => sum + Number(row.value ?? 0), 0), icon: Package, hint: "Total value", format: formatINR },
     ],
     installations: [
-      { label: "Total projects", value: rows.length, icon: HardHat, hint: "Installation pipeline" },
-      { label: "In progress", value: count("stage", "Installing") + count("stage", "Commissioning"), icon: ClipboardCheck, hint: "On site or commissioning" },
-      { label: "Completed", value: count("stage", "Completed"), icon: Users, hint: "Handed over" },
+      { label: "Total projects", value: rows.length, icon: FolderKanban, hint: "Project pipeline" },
+      { label: "In progress", value: count("stage", "In Progress"), icon: ClipboardCheck, hint: "Active work" },
+      { label: "Completed", value: count("stage", "Completed"), icon: Users, hint: "Finished work" },
     ],
     inventory: [
       { label: "Stock items", value: rows.length, icon: Package, hint: "Tracked products" },

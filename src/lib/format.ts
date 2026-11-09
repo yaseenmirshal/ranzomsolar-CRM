@@ -15,9 +15,7 @@ export function formatINR(value: number, compact = false): string {
 }
 
 export function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, "").replace(/^91/, "").slice(-10);
-  if (digits.length !== 10) return raw;
-  return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+  return raw.trim();
 }
 
 export function formatDate(iso?: string | null, pattern = "dd MMM yyyy"): string {

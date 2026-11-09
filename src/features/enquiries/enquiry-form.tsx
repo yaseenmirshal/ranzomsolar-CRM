@@ -55,14 +55,14 @@ export function EnquiryFormDialog({ open, onOpenChange, enquiry }: { open: boole
 
   const onSubmit = handleSubmit(async (v) => {
     const now = new Date().toISOString();
-    const digits = v.contactNo.replace(/\D/g, "").slice(-10);
+    const contactNo = v.contactNo.trim();
     const body = {
       name: v.name, category: v.category, status: v.status, stage: v.stage, assignedTo: v.assignedTo, source: v.source,
-      contactNo: digits, email: v.email || undefined, place: v.place,
+      contactNo, email: v.email || undefined, place: v.place,
       roofType: v.roofType || undefined, solarType: v.solarType || undefined, systemCapacity: v.systemCapacity || undefined,
       dcrType: v.dcrType || undefined, panelBrand: v.panelBrand || undefined, inverterBrand: v.inverterBrand || undefined,
       workDescription: v.workDescription || undefined, referral: v.referral || undefined,
-      referralContact: v.referralContact ? v.referralContact.replace(/\D/g, "").slice(-10) : undefined,
+      referralContact: v.referralContact.trim() || undefined,
       quoted: v.quoted ? Number(v.quoted) : undefined, cashReceived: v.cashReceived ? Number(v.cashReceived) : 0,
       startDate: v.startDate || undefined, nextFollowUp: v.nextFollowUp || undefined, documentation: v.documentation, documents: v.documents,
     };
@@ -101,32 +101,32 @@ export function EnquiryFormDialog({ open, onOpenChange, enquiry }: { open: boole
               <FormField id="assignedTo" label="Assigned to" error={err("assignedTo")}>
                 <Controller control={control} name="assignedTo" render={({ field }) => <SelectField id="assignedTo" value={field.value} onChange={field.onChange} options={team.map((t) => t.name)} />} />
               </FormField>
-              <FormField id="source" label="Enquiry source">
+              <FormField id="source" label="Lead source">
                 <Controller control={control} name="source" render={({ field }) => <SelectField id="source" value={field.value} onChange={field.onChange} options={SOURCES} />} />
               </FormField>
             </FormSection>
 
             <FormSection title="2. Contact details">
-              <FormField id="contactNo" label="Phone number" required error={err("contactNo")} hint="10-digit Indian mobile, e.g. 98470 12345">
-                <Input id="contactNo" inputMode="tel" placeholder="98470 12345" aria-invalid={!!errors.contactNo} {...register("contactNo", { onBlur: (e) => { e.target.value = formatPhone(e.target.value); } })} />
+              <FormField id="contactNo" label="Phone number" required error={err("contactNo")} hint="Include country code for international numbers.">
+                <Input id="contactNo" inputMode="tel" placeholder="+1 555 123 4567" aria-invalid={!!errors.contactNo} {...register("contactNo", { onBlur: (e) => { e.target.value = formatPhone(e.target.value); } })} />
               </FormField>
               <FormField id="email" label="Email" error={err("email")}><Input id="email" type="email" aria-invalid={!!errors.email} {...register("email")} /></FormField>
             </FormSection>
 
-            <FormSection title="3. Property & location">
-              <FormField id="place" label="Place" required error={err("place")}><Input id="place" placeholder="e.g. Feroke, Kozhikode" aria-invalid={!!errors.place} {...register("place")} /></FormField>
-              <FormField id="roofType" label="Roof type">
+            <FormSection title="3. Address & delivery preference">
+              <FormField id="place" label="Location" required error={err("place")}><Input id="place" placeholder="City, region or service area" aria-invalid={!!errors.place} {...register("place")} /></FormField>
+              <FormField id="roofType" label="Delivery mode">
                 <Controller control={control} name="roofType" render={({ field }) => <SelectField id="roofType" value={field.value} onChange={field.onChange} options={ROOF_TYPES} />} />
               </FormField>
             </FormSection>
 
-            <FormSection title="4. Solar requirements" description="Capacity and brand choices are preferences only — no engineering calculations are performed.">
-              <FormField id="solarType" label="Solar type"><Controller control={control} name="solarType" render={({ field }) => <SelectField id="solarType" value={field.value ?? ""} onChange={field.onChange} options={SOLAR_TYPES} />} /></FormField>
-              <FormField id="systemCapacity" label="System capacity"><Controller control={control} name="systemCapacity" render={({ field }) => <SelectField id="systemCapacity" value={field.value ?? ""} onChange={field.onChange} options={CAPACITIES} />} /></FormField>
-              <FormField id="dcrType" label="DCR / NDCR"><Controller control={control} name="dcrType" render={({ field }) => <SelectField id="dcrType" value={field.value ?? ""} onChange={field.onChange} options={DCR_TYPES} />} /></FormField>
-              <FormField id="panelBrand" label="Panel brand"><Controller control={control} name="panelBrand" render={({ field }) => <SelectField id="panelBrand" value={field.value ?? ""} onChange={field.onChange} options={PANEL_BRANDS} />} /></FormField>
-              <FormField id="inverterBrand" label="Inverter brand"><Controller control={control} name="inverterBrand" render={({ field }) => <SelectField id="inverterBrand" value={field.value ?? ""} onChange={field.onChange} options={INVERTER_BRANDS} />} /></FormField>
-              <FormField id="workDescription" label="Work description" className="sm:col-span-2"><Textarea id="workDescription" {...register("workDescription")} /></FormField>
+            <FormSection title="4. Products & services" description="Capture the offering, package and requirements discussed with the customer.">
+              <FormField id="solarType" label="Offering"><Controller control={control} name="solarType" render={({ field }) => <SelectField id="solarType" value={field.value ?? ""} onChange={field.onChange} options={SOLAR_TYPES} />} /></FormField>
+              <FormField id="systemCapacity" label="Plan tier"><Controller control={control} name="systemCapacity" render={({ field }) => <SelectField id="systemCapacity" value={field.value ?? ""} onChange={field.onChange} options={CAPACITIES} />} /></FormField>
+              <FormField id="dcrType" label="Service level"><Controller control={control} name="dcrType" render={({ field }) => <SelectField id="dcrType" value={field.value ?? ""} onChange={field.onChange} options={DCR_TYPES} />} /></FormField>
+              <FormField id="panelBrand" label="Package"><Controller control={control} name="panelBrand" render={({ field }) => <SelectField id="panelBrand" value={field.value ?? ""} onChange={field.onChange} options={PANEL_BRANDS} />} /></FormField>
+              <FormField id="inverterBrand" label="Billing cycle"><Controller control={control} name="inverterBrand" render={({ field }) => <SelectField id="inverterBrand" value={field.value ?? ""} onChange={field.onChange} options={INVERTER_BRANDS} />} /></FormField>
+              <FormField id="workDescription" label="Requirements / notes" className="sm:col-span-2"><Textarea id="workDescription" {...register("workDescription")} /></FormField>
             </FormSection>
 
             <FormSection title="5. Referral information">

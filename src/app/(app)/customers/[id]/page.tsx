@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CustomerDetailView } from "@/features/customers/customer-detail";
 import { requireUser } from "@/lib/auth/authorization";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/prisma/db";
 
 export const metadata: Metadata = { title: "Customer profile" };
 
@@ -13,56 +13,65 @@ export default async function CustomerDetailsPage({
 }) {
   await requireUser();
   const { id } = await params;
-  const customer = await prisma.customer.findFirst({
-    where: { id, status: "ACTIVE" },
-    include: {
-      enquiries: {
-        orderBy: { createdAt: "desc" },
-        select: { id: true, siNo: true, status: true, stage: true, createdAt: true, quotedAmount: true, workDescription: true },
-      },
-      followUps: {
-        orderBy: { date: "desc" },
-        select: { id: true, title: true, date: true, status: true, outcome: true },
-      },
-      surveys: {
-        orderBy: { scheduledAt: "desc" },
-        select: { id: true, surveyNumber: true, scheduledAt: true, status: true, feasibility: true, proposedCapacityKw: true },
-      },
-      quotations: {
-        orderBy: { createdAt: "desc" },
-        select: { id: true, number: true, createdAt: true, status: true, totalAmount: true, customerPayable: true },
-      },
-      orders: {
-        orderBy: { orderDate: "desc" },
-        select: { id: true, number: true, orderDate: true, status: true, orderValue: true, advanceReceived: true },
-      },
-      installations: {
-        orderBy: { createdAt: "desc" },
-        select: { id: true, installationNumber: true, scheduledAt: true, status: true, capacityKw: true, progressPercent: true },
-      },
-      invoices: {
-        orderBy: { issueDate: "desc" },
-        select: { id: true, number: true, issueDate: true, dueDate: true, status: true, totalAmount: true, balanceDue: true },
-      },
-      payments: {
-        orderBy: { paymentDate: "desc" },
-        select: { id: true, referenceNumber: true, paymentDate: true, method: true, amount: true, status: true },
-      },
-      serviceRequests: {
-        orderBy: { reportedAt: "desc" },
-        select: { id: true, number: true, reportedAt: true, status: true, priority: true, description: true },
-      },
-      documents: {
-        orderBy: { createdAt: "desc" },
-        select: { id: true, fileName: true, contentType: true, sizeBytes: true, createdAt: true },
-      },
-      activities: {
-        orderBy: { createdAt: "desc" },
-        take: 20,
-        select: { id: true, kind: true, text: true, createdAt: true },
-      },
-    },
-  });
+  const customer = await db.orm.public.Customer
+    .where({ id, status: "ACTIVE" })
+    .include("enquiries", (items) =>
+      items
+        .select("id", "siNo", "status", "stage", "createdAt", "quotedAmount", "workDescription")
+        .orderBy((item) => item.createdAt.desc()),
+    )
+    .include("followUps", (items) =>
+      items
+        .select("id", "title", "date", "status", "outcome")
+        .orderBy((item) => item.date.desc()),
+    )
+    .include("surveys", (items) =>
+      items
+        .select("id", "surveyNumber", "scheduledAt", "status", "feasibility", "proposedCapacityKw")
+        .orderBy((item) => item.scheduledAt.desc()),
+    )
+    .include("quotations", (items) =>
+      items
+        .select("id", "number", "createdAt", "status", "totalAmount", "customerPayable")
+        .orderBy((item) => item.createdAt.desc()),
+    )
+    .include("orders", (items) =>
+      items
+        .select("id", "number", "orderDate", "status", "orderValue", "advanceReceived")
+        .orderBy((item) => item.orderDate.desc()),
+    )
+    .include("installations", (items) =>
+      items
+        .select("id", "installationNumber", "scheduledAt", "status", "capacityKw", "progressPercent")
+        .orderBy((item) => item.createdAt.desc()),
+    )
+    .include("invoices", (items) =>
+      items
+        .select("id", "number", "issueDate", "dueDate", "status", "totalAmount", "balanceDue")
+        .orderBy((item) => item.issueDate.desc()),
+    )
+    .include("payments", (items) =>
+      items
+        .select("id", "referenceNumber", "paymentDate", "method", "amount", "status")
+        .orderBy((item) => item.paymentDate.desc()),
+    )
+    .include("serviceRequests", (items) =>
+      items
+        .select("id", "number", "reportedAt", "status", "priority", "description")
+        .orderBy((item) => item.reportedAt.desc()),
+    )
+    .include("documents", (items) =>
+      items
+        .select("id", "fileName", "contentType", "sizeBytes", "createdAt")
+        .orderBy((item) => item.createdAt.desc()),
+    )
+    .include("activities", (items) =>
+      items
+        .select("id", "kind", "text", "createdAt")
+        .orderBy((item) => item.createdAt.desc())
+        .limit(20),
+    )
+    .first();
 
   if (!customer) notFound();
   return <CustomerDetailView customer={customer} />;

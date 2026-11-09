@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { format, isBefore, isToday, parseISO, startOfDay, subDays, isAfter } from "date-fns";
-import { Banknote, CalendarClock, ClipboardCheck, FileText, HardHat, HandCoins, PhoneCall, Plus, ScrollText, ShoppingCart, Sparkles, UserPlus } from "lucide-react";
+import { Banknote, CalendarClock, ClipboardCheck, FileText, FolderKanban, HandCoins, PhoneCall, Plus, ScrollText, ShoppingCart, Sparkles, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { ListCard } from "@/components/shared/list-card";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { capacityDistribution, countBy, funnel, kpis, monthlySeries, teamPerformance } from "@/lib/analytics";
+import { countBy, funnel, kpis, monthlySeries, teamPerformance } from "@/lib/analytics";
 import { formatDate, formatINR, initials, timeAgo } from "@/lib/format";
 import { useDataStore } from "@/store/data-store";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ const EnquiryGrowthChart = dynamic(() => import("@/components/charts/dashboard-c
 const RevenueChart = dynamic(() => import("@/components/charts/dashboard-charts").then((m) => m.RevenueChart), { ssr: false, loading: ChartSkeleton });
 const FunnelChart = dynamic(() => import("@/components/charts/dashboard-charts").then((m) => m.FunnelChart), { ssr: false, loading: ChartSkeleton });
 const DonutChart = dynamic(() => import("@/components/charts/dashboard-charts").then((m) => m.DonutChart), { ssr: false, loading: ChartSkeleton });
-const CapacityChart = dynamic(() => import("@/components/charts/dashboard-charts").then((m) => m.CapacityChart), { ssr: false, loading: ChartSkeleton });
+const PlanTierChart = dynamic(() => import("@/components/charts/dashboard-charts").then((m) => m.PlanTierChart), { ssr: false, loading: ChartSkeleton });
 
 const RANGES = [{ label: "Last 30 days", days: 30 }, { label: "Last 90 days", days: 90 }, { label: "All time", days: 0 }] as const;
 
@@ -32,10 +32,10 @@ function greeting() {
 }
 
 const quickActions = [
-  { label: "Add enquiry", href: "/enquiries?new=1", icon: UserPlus },
+  { label: "Add lead", href: "/enquiries?new=1", icon: UserPlus },
   { label: "Schedule follow-up", href: "/follow-ups?new=1", icon: PhoneCall },
-  { label: "Book site survey", href: "/site-surveys?new=1", icon: ClipboardCheck },
-  { label: "Create quotation", href: "/quotations?new=1", icon: FileText },
+  { label: "Add task", href: "/site-surveys?new=1", icon: ClipboardCheck },
+  { label: "Create proposal", href: "/quotations?new=1", icon: FileText },
   { label: "Record payment", href: "/payments?new=1", icon: HandCoins },
 ];
 
@@ -56,15 +56,15 @@ export function DashboardView() {
   const fn = useMemo(() => funnel(data), [data]);
   const catData = useMemo(() => countBy(data.enquiries, (e) => e.category), [data.enquiries]);
   const typeData = useMemo(() => countBy(data.enquiries, (e) => e.solarType), [data.enquiries]);
-  const capData = useMemo(() => capacityDistribution(data.enquiries), [data.enquiries]);
+  const capData = useMemo(() => countBy(data.enquiries, (e) => e.systemCapacity), [data.enquiries]);
   const team = useMemo(() => teamPerformance(data, d.team), [data, d.team]);
 
   const today = startOfDay(new Date());
   const pending = d.followUps.filter((f) => f.status === "Pending");
   const todays = pending.filter((f) => isToday(parseISO(f.date)));
   const overdue = pending.filter((f) => isBefore(parseISO(f.date), today));
-  const upcomingSurveys = d.surveys.filter((s) => s.status === "Scheduled").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
-  const activeInstalls = d.installations.filter((i) => i.stage !== "Completed").slice(0, 4);
+  const upcomingTasks = d.surveys.filter((s) => s.status === "Scheduled").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
+  const activeProjects = d.installations.filter((i) => i.stage !== "Completed").slice(0, 4);
   const recentPayments = [...d.payments].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
   const recentQuotes = [...d.quotations].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4);
   const recentEnquiries = [...d.enquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
@@ -95,8 +95,13 @@ export function DashboardView() {
   return (
     <div ref={root} className="space-y-6">
       {/* Welcome */}
-      <div data-reveal="head" className="solar-lines relative overflow-hidden rounded-xl border bg-card p-5 sm:p-6">
+      <div data-reveal="head" className="brand-lines relative overflow-hidden rounded-xl border bg-card p-5 sm:p-6">
         <div className="absolute -right-10 -top-16 size-56 rounded-full bg-brand/15 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute right-8 top-1/2 hidden size-44 -translate-y-1/2 items-center justify-center lg:flex xl:right-40" aria-hidden>
+          <div className="dashboard-orb absolute size-28 rounded-full" />
+          <div className="dashboard-orb-ring absolute size-40 rounded-full" />
+          <div className="dashboard-orb-ring absolute size-32 rounded-full opacity-50 [animation-delay:-8s]" />
+        </div>
         <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground"><CalendarClock className="size-3.5" />{format(new Date(), "EEEE, dd MMMM yyyy")}</p>
@@ -112,20 +117,20 @@ export function DashboardView() {
                 <button key={r.label} onClick={() => setRange(r)} aria-pressed={range.label === r.label} className={cn("rounded-md px-3 py-1 text-[13px] font-medium transition-colors", range.label === r.label ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground")}>{r.label}</button>
               ))}
             </div>
-            <Button asChild><Link href="/enquiries?new=1"><Plus />Add enquiry</Link></Button>
+            <Button asChild><Link href="/enquiries?new=1"><Plus />Add lead</Link></Button>
           </div>
         </div>
       </div>
 
       {/* KPIs */}
       <section aria-label="Key metrics" className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-9">
-        <KpiCard label="Total enquiries" value={k.totalEnquiries} icon={ScrollText} hint={range.label} />
-        <KpiCard label="New enquiries" value={k.newEnquiries} icon={UserPlus} hint="Recent leads" />
+        <KpiCard label="Total leads" value={k.totalEnquiries} icon={ScrollText} hint={range.label} />
+        <KpiCard label="New leads" value={k.newEnquiries} icon={UserPlus} hint="Recent opportunities" />
         <KpiCard label="Follow-ups due" value={k.followUpsDue} icon={PhoneCall} hint="Today & overdue" />
-        <KpiCard label="Site surveys" value={k.surveys} icon={ClipboardCheck} hint={`${d.surveys.filter((s) => s.status === "Scheduled").length} scheduled`} />
-        <KpiCard label="Quotations sent" value={k.quotationsSent} icon={FileText} hint="Sent + accepted" />
+        <KpiCard label="Tasks" value={k.surveys} icon={ClipboardCheck} hint={`${d.surveys.filter((s) => s.status === "Scheduled").length} scheduled`} />
+        <KpiCard label="Proposals sent" value={k.quotationsSent} icon={FileText} hint="Sent + accepted" />
         <KpiCard label="Confirmed orders" value={k.confirmedOrders} icon={ShoppingCart} />
-        <KpiCard label="Active installations" value={k.activeInstallations} icon={HardHat} hint="In progress" />
+        <KpiCard label="Active projects" value={k.activeInstallations} icon={FolderKanban} hint="In progress" />
         <KpiCard label="Total revenue" value={k.revenue} format={(n) => formatINR(n, true)} icon={Banknote} hint="Payments received" />
         <KpiCard label="Outstanding" value={k.outstanding} format={(n) => formatINR(n, true)} icon={HandCoins} hint="Across invoices" />
       </section>
@@ -135,9 +140,9 @@ export function DashboardView() {
         <EnquiryGrowthChart data={monthly} className="lg:col-span-7" />
         <FunnelChart data={fn} className="lg:col-span-5" />
         <RevenueChart data={monthly} className="lg:col-span-7" />
-        <DonutChart title="Residential vs commercial" data={catData} className="lg:col-span-5" />
-        <CapacityChart data={capData} className="lg:col-span-7" />
-        <DonutChart title="Solar system types" description="On-grid, hybrid, off-grid" data={typeData} className="lg:col-span-5" />
+        <DonutChart title="Individuals vs organizations" data={catData} className="lg:col-span-5" />
+        <PlanTierChart data={capData} className="lg:col-span-7" />
+        <DonutChart title="Offering mix" data={typeData} className="lg:col-span-5" />
       </section>
 
       {/* Work lists */}
@@ -152,17 +157,17 @@ export function DashboardView() {
             <div key={f.id} className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{f.customer}</p><p className="text-xs text-muted-foreground">Due {formatDate(f.date, "dd MMM")} · {f.assignedTo}</p></div><span className="size-2 shrink-0 rounded-full bg-destructive" aria-label="Overdue" /></div>
           ))}
         </ListCard>
-        <ListCard title="Upcoming site surveys" href="/site-surveys" empty="No surveys scheduled">
-          {upcomingSurveys.map((s) => (
+        <ListCard title="Upcoming tasks" href="/site-surveys" empty="No tasks scheduled">
+          {upcomingTasks.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{s.customer}</p><p className="text-xs text-muted-foreground">{s.location} · {s.surveyor}</p></div><span className="shrink-0 text-xs font-medium text-muted-foreground">{formatDate(s.date, "dd MMM")}</span></div>
           ))}
         </ListCard>
-        <ListCard title="Recent enquiries" href="/enquiries" empty="No enquiries yet" className="xl:col-span-1">
+        <ListCard title="Recent leads" href="/enquiries" empty="No leads yet" className="xl:col-span-1">
           {recentEnquiries.map((e) => (
             <Link key={e.id} href={`/enquiries/${e.id}`} className="flex items-center justify-between gap-3 hover:opacity-80"><div className="min-w-0"><p className="truncate text-sm font-medium">{e.name}</p><p className="text-xs text-muted-foreground">{e.place} · {e.systemCapacity ?? "—"}</p></div><StatusBadge value={e.status} /></Link>
           ))}
         </ListCard>
-        <ListCard title="Recent quotations" href="/quotations" empty="No quotations yet">
+        <ListCard title="Recent proposals" href="/quotations" empty="No proposals yet">
           {recentQuotes.map((q) => (
             <div key={q.id} className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{q.customer}</p><p className="text-xs text-muted-foreground">{q.number} · {q.capacity}</p></div><StatusBadge value={q.status} /></div>
           ))}
@@ -176,10 +181,10 @@ export function DashboardView() {
 
       <section className="grid gap-4 lg:grid-cols-12">
         <Card className="lg:col-span-5" data-reveal="section">
-          <CardHeader><CardTitle>Solar installation progress</CardTitle><Link href="/installations" className="text-xs font-medium text-brand hover:underline">View all</Link></CardHeader>
+          <CardHeader><CardTitle>Project progress</CardTitle><Link href="/installations" className="text-xs font-medium text-brand hover:underline">View all</Link></CardHeader>
           <CardContent className="space-y-4 pt-4">
-            {activeInstalls.length === 0 && <p className="text-sm text-muted-foreground">No active installations.</p>}
-            {activeInstalls.map((i) => {
+            {activeProjects.length === 0 && <p className="text-sm text-muted-foreground">No active projects.</p>}
+            {activeProjects.map((i) => {
               const pct = Math.round((i.checklist.filter((c) => c.done).length / Math.max(1, i.checklist.length)) * 100);
               return (
                 <div key={i.id}>

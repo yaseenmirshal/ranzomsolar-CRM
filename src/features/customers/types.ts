@@ -1,5 +1,3 @@
-import type { CustomerCategory } from "@prisma/client";
-
 export interface CustomerListItem {
   id: string;
   name: string;
@@ -7,7 +5,7 @@ export interface CustomerListItem {
   email: string | null;
   address: string | null;
   district: string | null;
-  category: CustomerCategory;
+  category: "RESIDENTIAL" | "COMMERCIAL";
   projects: number;
   projectValue: string;
   outstandingBalance: string;

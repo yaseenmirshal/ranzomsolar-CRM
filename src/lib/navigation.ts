@@ -1,6 +1,7 @@
 import {
-  BarChart3, Banknote, CalendarClock, ClipboardCheck, FileText, HardHat, LayoutDashboard, Contact,
-  Package, PhoneCall, Receipt, ScrollText, Settings, ShoppingCart, Users, Wrench, type LucideIcon,
+  Banknote, BarChart3, BriefcaseBusiness, CalendarClock, ClipboardList, Contact, FileText,
+  FolderKanban, LayoutDashboard, LifeBuoy, Package, PhoneCall, Receipt, Settings, ShoppingCart, Users,
+  type LucideIcon,
 } from "lucide-react";
 
 export interface NavItem { label: string; href: string; icon: LucideIcon }
@@ -9,21 +10,21 @@ export interface NavGroup { label: string; items: NavItem[] }
 export const navGroups: NavGroup[] = [
   { label: "Overview", items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] },
   {
-    label: "Sales",
+    label: "Customers",
     items: [
-      { label: "Enquiries", href: "/enquiries", icon: ScrollText },
+      { label: "Leads", href: "/enquiries", icon: BriefcaseBusiness },
       { label: "Customers", href: "/customers", icon: Users },
       { label: "Contacts", href: "/contacts", icon: Contact },
       { label: "Follow-ups", href: "/follow-ups", icon: PhoneCall },
     ],
   },
   {
-    label: "Projects",
+    label: "Operations",
     items: [
-      { label: "Site Surveys", href: "/site-surveys", icon: ClipboardCheck },
-      { label: "Quotations", href: "/quotations", icon: FileText },
+      { label: "Tasks", href: "/site-surveys", icon: ClipboardList },
+      { label: "Proposals", href: "/quotations", icon: FileText },
       { label: "Orders", href: "/orders", icon: ShoppingCart },
-      { label: "Installations", href: "/installations", icon: HardHat },
+      { label: "Projects", href: "/installations", icon: FolderKanban },
       { label: "Inventory", href: "/inventory", icon: Package },
     ],
   },
@@ -36,7 +37,7 @@ export const navGroups: NavGroup[] = [
   },
   {
     label: "Support",
-    items: [{ label: "Service & Warranty", href: "/service", icon: Wrench }],
+    items: [{ label: "Support cases", href: "/service", icon: LifeBuoy }],
   },
   {
     label: "Insights",

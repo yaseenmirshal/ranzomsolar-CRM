@@ -68,15 +68,15 @@ function RecordSection({
 }
 
 export function CustomerDetailView({ customer }: { customer: CustomerDetails }) {
-  const category = customer.category === "RESIDENTIAL" ? "Residential" : "Commercial";
+  const category = customer.category === "RESIDENTIAL" ? "Individual" : "Organization";
   const sections = [
     {
-      title: "Enquiries",
+      title: "Leads",
       icon: BriefcaseBusiness,
       entries: customer.enquiries.map((item) => ({
         id: item.id,
-        title: `Enquiry #${item.siNo}`,
-        detail: item.workDescription ?? "Solar project enquiry",
+        title: `Lead #${item.siNo}`,
+        detail: item.workDescription ?? "Customer opportunity",
         status: item.stage,
         date: item.createdAt,
       })),
@@ -93,18 +93,18 @@ export function CustomerDetailView({ customer }: { customer: CustomerDetails }) 
       })),
     },
     {
-      title: "Site surveys",
+      title: "Tasks",
       icon: HardHat,
       entries: customer.surveys.map((item) => ({
         id: item.id,
         title: item.surveyNumber,
-        detail: `${item.feasibility.replaceAll("_", " ")}${item.proposedCapacityKw ? ` · ${item.proposedCapacityKw.toString()} kW` : ""}`,
+        detail: item.feasibility.replaceAll("_", " "),
         status: item.status,
         date: item.scheduledAt,
       })),
     },
     {
-      title: "Quotations",
+      title: "Proposals",
       icon: FileText,
       entries: customer.quotations.map((item) => ({
         id: item.id,
@@ -126,12 +126,12 @@ export function CustomerDetailView({ customer }: { customer: CustomerDetails }) 
       })),
     },
     {
-      title: "Installations",
+      title: "Projects",
       icon: HardHat,
       entries: customer.installations.map((item) => ({
         id: item.id,
         title: item.installationNumber,
-        detail: `${item.capacityKw.toString()} kW · ${item.progressPercent}% complete`,
+        detail: `${item.progressPercent}% complete`,
         status: item.status,
         date: item.scheduledAt,
       })),
@@ -159,7 +159,7 @@ export function CustomerDetailView({ customer }: { customer: CustomerDetails }) 
       })),
     },
     {
-      title: "Service & warranty",
+      title: "Support cases",
       icon: Wrench,
       entries: customer.serviceRequests.map((item) => ({
         id: item.id,
@@ -211,7 +211,7 @@ export function CustomerDetailView({ customer }: { customer: CustomerDetails }) 
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard label="Enquiries" value={customer.enquiries.length} icon={BriefcaseBusiness} />
-        <KpiCard label="Quotations" value={customer.quotations.length} icon={FileText} />
+        <KpiCard label="Proposals" value={customer.quotations.length} icon={FileText} />
         <KpiCard label="Orders" value={customer.orders.length} icon={BriefcaseBusiness} />
         <KpiCard label="Service requests" value={customer.serviceRequests.length} icon={Wrench} />
       </div>

@@ -24,8 +24,8 @@ const FILTERS = [
   { id: "all", label: "All", test: () => true },
   { id: "new", label: "New Leads", test: (e: Enquiry) => e.stage === "New" },
   { id: "followup", label: "Follow-up Required", test: (e: Enquiry) => e.stage === "Follow-up Required" },
-  { id: "survey", label: "Site Survey Pending", test: (e: Enquiry) => e.stage === "Site Survey Pending" },
-  { id: "quote", label: "Quotation Pending", test: (e: Enquiry) => e.stage === "Quotation Pending" },
+  { id: "qualified", label: "Qualified", test: (e: Enquiry) => e.stage === "Qualified" },
+  { id: "proposal", label: "Proposal Sent", test: (e: Enquiry) => e.stage === "Proposal Sent" },
   { id: "progress", label: "In Progress", test: (e: Enquiry) => e.status === "In-Progress" },
   { id: "paused", label: "Paused", test: (e: Enquiry) => e.status === "Paused" },
   { id: "completed", label: "Completed", test: (e: Enquiry) => e.status === "Completed" },
@@ -54,8 +54,8 @@ export function EnquiriesView() {
     { accessorKey: "contactNo", header: "Phone", cell: ({ row }) => formatPhone(row.original.contactNo) },
     { accessorKey: "place", header: "Location" },
     { accessorKey: "category", header: "Category", cell: ({ row }) => <StatusBadge value={row.original.category} /> },
-    { accessorKey: "solarType", header: "Solar type", cell: ({ row }) => row.original.solarType ?? "—" },
-    { accessorKey: "systemCapacity", header: "Capacity", cell: ({ row }) => row.original.systemCapacity ?? "—" },
+    { accessorKey: "solarType", header: "Offering", cell: ({ row }) => row.original.solarType ?? "—" },
+    { accessorKey: "systemCapacity", header: "Plan tier", cell: ({ row }) => row.original.systemCapacity ?? "—" },
     { accessorKey: "referral", header: "Referral", cell: ({ row }) => row.original.referral ?? "—" },
     { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge value={row.original.status} /> },
     { accessorKey: "assignedTo", header: "Assigned" },
@@ -80,23 +80,23 @@ export function EnquiriesView() {
   ], [router]);
 
   const exportCsv = () => downloadCsv("enquiries.csv", rows.map((e) => ({
-    "SI No": e.siNo, Customer: e.name, Phone: e.contactNo, Location: e.place, Category: e.category, "Solar Type": e.solarType ?? "",
-    "System Capacity": e.systemCapacity ?? "", Referral: e.referral ?? "", Status: e.status, Assigned: e.assignedTo,
+    "SI No": e.siNo, Customer: e.name, Phone: e.contactNo, Location: e.place, Category: e.category, Offering: e.solarType ?? "",
+    "Plan tier": e.systemCapacity ?? "", Referral: e.referral ?? "", Status: e.status, Assigned: e.assignedTo,
     "Next Follow-up": e.nextFollowUp ?? "", Created: e.createdAt.slice(0, 10), Quoted: e.quoted ?? "", "Cash Received": e.cashReceived ?? "",
   })));
 
   return (
     <>
       <PageHeader
-        title="Enquiries"
-        description="Every solar lead and customer enquiry, from first call to completion."
+        title="Leads"
+        description="Track potential customers, conversations and opportunities through your pipeline."
         actions={<>
           <div className="flex rounded-lg bg-muted p-1" role="group" aria-label="View mode">
             {([["table", Table2, "Table"], ["kanban", KanbanSquare, "Kanban"]] as const).map(([id, Icon, label]) => (
               <button key={id} onClick={() => setView(id)} aria-pressed={view === id} className={cn("inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium", view === id ? "bg-card shadow-sm" : "text-muted-foreground")}><Icon className="size-4" />{label}</button>
             ))}
           </div>
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true); }}><Plus />Add enquiry</Button>
+          <Button onClick={() => { setEditing(undefined); setFormOpen(true); }}><Plus />Add lead</Button>
         </>}
       />
 
@@ -112,7 +112,7 @@ export function EnquiriesView() {
       </div>
 
       {!hydrated ? <Skeleton className="h-96 rounded-xl" /> : view === "table" ? (
-        <DataTable data={rows} columns={columns} searchPlaceholder="Search name, phone, place…" onExport={exportCsv} onRowClick={(e) => router.push(`/enquiries/${e.id}`)} emptyTitle="No enquiries in this view" emptyDescription="Add a new enquiry to get started." initialHidden={{ referral: false, solarType: false, quoted: false, createdAt: false }} />
+        <DataTable data={rows} columns={columns} searchPlaceholder="Search name, phone, location…" onExport={exportCsv} onRowClick={(e) => router.push(`/enquiries/${e.id}`)} emptyTitle="No leads in this view" emptyDescription="Add a lead to get started." initialHidden={{ referral: false, solarType: false, quoted: false, createdAt: false }} />
       ) : (
         <EnquiryKanban enquiries={rows} statuses={ENQUIRY_STATUSES} onEdit={(e) => { setEditing(e); setFormOpen(true); }} />
       )}

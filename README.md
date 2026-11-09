@@ -1,18 +1,18 @@
-# Ranzom Solar CRM
+# Ranzom CRM
 
-Ranzom Solar CRM is an existing Next.js App Router application for solar sales, projects, finance and service workflows. The Dashboard and Enquiries remain the visual reference; new modules should reuse the established UI components and brand styling.
+Ranzom CRM is a flexible customer and business management workspace by Ranzom Tech. Its sample workflows cover leads, customers, contacts, follow-ups, tasks, proposals, orders, projects, inventory, invoices, payments and support cases.
 
 ## Stack
 
 - Next.js 16 App Router, React 19 and TypeScript
-- PostgreSQL with Prisma ORM
-- Auth.js credentials sign-in with hashed passwords
-- Zod validation and server-side authorization
-- Tailwind CSS 4
+- PostgreSQL with Prisma ORM 8 for application queries and schema contracts
+- Auth.js credentials sign-in with bcrypt password hashes
+- Zod validation, Tailwind CSS 4 and selectable gradient palettes
+- Fictional sample records in browser storage for the other CRM workflows
 
 ## Local setup
 
-Use Node.js 22+ and a reachable PostgreSQL database.
+Use Node.js 22.18+ (or 24.11+) and a reachable PostgreSQL database.
 
 1. Install dependencies and create a private environment file:
 
@@ -21,15 +21,18 @@ Use Node.js 22+ and a reachable PostgreSQL database.
    cp .env.example .env
    ```
 
-2. Set `DATABASE_URL` to your PostgreSQL connection string, generate `AUTH_SECRET` with `openssl rand -base64 32`, and set `AUTH_URL` to the local app URL. Set `ADMIN_EMAIL`, `ADMIN_PASSWORD` (at least 12 characters) and `ADMIN_NAME` for the initial administrator.
+2. Set `DATABASE_URL` to your PostgreSQL connection string and generate a strong random `AUTH_SECRET` (for example, `openssl rand -base64 32`). Both are required at runtime; do not use a `NEXT_PUBLIC_` prefix.
 
-3. Generate the Prisma client, create the database tables, and bootstrap the administrator:
+3. Emit the Prisma contract, then initialize an empty database and provision an administrator. Only initialize a database that is confirmed empty:
 
    ```bash
-   npm run db:generate
-   npm run db:migrate
+   npm run db:contract
+   npm run db:init -- --dry-run
+   npm run db:init
    npm run db:create-admin
    ```
+
+   The provisioning script prompts for the admin details and hashes the password. To provide a custom account non-interactively, set `ADMIN_EMAIL`, `ADMIN_NAME`, and `ADMIN_PASSWORD` in the private `.env` file before running `npm run db:create-admin`; use a password of at least 12 characters. These variables are only used by the provisioning command, not by login. Remove `ADMIN_PASSWORD` from `.env` after the account is provisioned. Do not commit `.env` or share its contents. For an existing database, do not run `db:init` or `db:migrate` until its schema has been inspected and adopted.
 
 4. Start Next.js:
 
@@ -37,21 +40,27 @@ Use Node.js 22+ and a reachable PostgreSQL database.
    npm run dev
    ```
 
-`.env` is ignored by Git. Never put database credentials, password hashes, or Auth.js secrets in `NEXT_PUBLIC_` variables.
+Sign in at `/login` with the administrator email and password that you provisioned. There are no built-in credentials.
+
+## Deployment
+
+Configure `DATABASE_URL` and `AUTH_SECRET` as server-only Vercel environment variables for every environment where the application runs. Before changing an existing production database, verify its schema against the emitted contract and adopt its current state; do not apply the generated initial migration blindly. The checked-in `migrations/app` initial migration was planned from an empty database and has not been applied.
+
+```bash
+npm run db:verify
+```
+
+Once the database state is confirmed and the required migration path is prepared, apply it with `npm run db:migrate`. Then provision the administrator against that database with `npm run db:create-admin`. If the production `User` table is missing, the schema must be initialized before creating the administrator or sign-in will not work.
+
+Authentication protects the workspace and role-gates customer changes, but this starter does not yet implement tenant isolation. Do not treat it as a multi-tenant SaaS or store sensitive customer data across multiple businesses without adding tenant-scoped data access.
 
 ## Database commands
 
-- `npm run db:generate` regenerates the Prisma client.
-- `npm run db:migrate` creates/applies a development migration.
-- `npm run db:deploy` applies checked-in migrations in a deployment environment.
-- `npm run db:studio` opens Prisma Studio.
-- `npm run db:create-admin` creates or resets the configured super-admin account.
-
-For Vercel production, configure a valid PostgreSQL `DATABASE_URL` and a generated `AUTH_SECRET` in the project's server-only Environment Variables. `AUTH_URL` is not required on Vercel because Auth.js detects the deployment URL. Before the first login, run `npm run db:deploy` against the production database, then create the initial administrator with `npm run db:create-admin` using the production `DATABASE_URL` and administrator credentials. Do not put these production values in `NEXT_PUBLIC_` variables or commit them.
-
-## Current implementation status
-
-The Prisma schema, initial PostgreSQL migration, Auth.js sign-in and role-checking foundation are in place. The Customers list, profile, create/edit and archive workflow is the first module being migrated to database persistence. Dashboard, Enquiries and the remaining modules have not yet been migrated from their demo/localStorage implementation; do not treat those records as production data. See [DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md) for the module plan and current status.
+- `npm run db:contract` emits the typed Prisma 8 contract.
+- `npm run db:init` initializes a confirmed-empty database.
+- `npm run db:verify` checks the database marker and schema against the contract.
+- `npm run db:migrate` applies planned Prisma 8 migrations.
+- `npm run db:create-admin` provisions or resets an administrator.
 
 ## Validation
 
@@ -60,3 +69,5 @@ npm run lint
 npx tsc --noEmit
 npm run build
 ```
+
+See [DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md) for the current implementation and persistence boundaries.

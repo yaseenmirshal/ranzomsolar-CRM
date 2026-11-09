@@ -1,24 +1,22 @@
-/** Typed data models. Field names mirror the existing Ranzom Notion Clients / Contacts databases. */
+/** Typed models for the generic Ranzom CRM workspace. */
 
-export const CATEGORIES = ["Residential", "Commercial"] as const;
-export const SOLAR_TYPES = ["On-Grid", "On-Grid (micro)", "Hybrid", "Off-Grid"] as const;
-export const CAPACITIES = ["3 KW", "5 KW", "8 KW", "10 KW", "15 KW", "50 kw", "65 kw"] as const;
-export const ROOF_TYPES = ["Sheet", "Slope", "Flat"] as const;
-export const DCR_TYPES = ["DCR", "NDCR"] as const;
-export const PANEL_BRANDS = ["WAREE", "EMMVEE", "ADANI"] as const;
-export const INVERTER_BRANDS = ["SOLIS", "POLYCAB", "DEYE"] as const;
-/** Existing lifecycle statuses — meanings must not be changed. */
+export const CATEGORIES = ["Individual", "Organization"] as const;
+export const SOLAR_TYPES = ["Product", "Service", "Subscription", "Other"] as const;
+export const CAPACITIES = ["Starter", "Standard", "Growth", "Enterprise"] as const;
+export const ROOF_TYPES = ["Remote", "On-site", "Hybrid"] as const;
+export const DCR_TYPES = ["Basic", "Standard", "Premium"] as const;
+export const PANEL_BRANDS = ["Core", "Plus", "Complete"] as const;
+export const INVERTER_BRANDS = ["One-time", "Monthly", "Annual"] as const;
 export const ENQUIRY_STATUSES = ["Lead", "In-Progress", "Paused", "Completed"] as const;
-export const CONTACT_ROLES = ["Lead", "Follow up"] as const;
-/** Optional, configurable pipeline stages layered on top of the lifecycle status. */
+export const CONTACT_ROLES = ["Lead", "Customer"] as const;
 export const PIPELINE_STAGES = [
   "New",
+  "Contacted",
+  "Qualified",
   "Follow-up Required",
-  "Site Survey Pending",
-  "Quotation Pending",
-  "Quotation Sent",
-  "Order Confirmed",
-  "Installation",
+  "Proposal Sent",
+  "Negotiation",
+  "Won",
   "Closed",
 ] as const;
 
@@ -76,7 +74,7 @@ export interface Contact extends BaseEntity {
   enquiryId: string; // Associated Company/Customer
 }
 
-export type FollowUpType = "Call" | "WhatsApp" | "Site Visit" | "Email" | "Meeting";
+export type FollowUpType = "Call" | "Email" | "Meeting" | "Video call" | "Other";
 export type FollowUpStatus = "Pending" | "Completed" | "Rescheduled";
 
 export interface FollowUp extends BaseEntity {
@@ -94,7 +92,7 @@ export interface FollowUp extends BaseEntity {
 }
 
 export type SurveyStatus = "Scheduled" | "Completed" | "Cancelled";
-export type Feasibility = "Feasible" | "Feasible with changes" | "Not feasible" | "Pending";
+export type Feasibility = "On track" | "Needs follow-up" | "Blocked" | "Pending";
 
 export interface SiteSurvey extends BaseEntity {
   enquiryId: string;
@@ -161,7 +159,7 @@ export interface Order extends BaseEntity {
   expectedInstallation?: string;
 }
 
-export type ProjectStage = "Planning" | "Material Dispatch" | "Installing" | "Commissioning" | "Completed";
+export type ProjectStage = "Planning" | "In Progress" | "On Hold" | "Completed";
 
 export interface ChecklistItem {
   id: string;
@@ -186,13 +184,13 @@ export interface InstallationProject extends BaseEntity {
 }
 
 export type InventoryCategory =
-  | "Solar Panels"
-  | "Inverters"
-  | "Batteries"
-  | "Mounting Structures"
-  | "Cables"
-  | "Electrical Components"
-  | "Other Materials";
+  | "Products"
+  | "Supplies"
+  | "Equipment"
+  | "Services"
+  | "Software"
+  | "Office"
+  | "Other";
 
 export interface InventoryItem extends BaseEntity {
   name: string;

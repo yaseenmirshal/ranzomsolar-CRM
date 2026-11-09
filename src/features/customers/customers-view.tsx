@@ -68,11 +68,11 @@ export function CustomersView({
     },
     { accessorKey: "phone", header: "Phone", cell: ({ row }) => formatPhone(row.original.phone) },
     { accessorKey: "email", header: "Email", cell: ({ row }) => row.original.email ?? "—" },
-    { accessorKey: "district", header: "District", cell: ({ row }) => row.original.district ?? "—" },
+    { accessorKey: "district",     header: "Region", cell: ({ row }) => row.original.district ?? "—" },
     {
       accessorKey: "category",
       header: "Category",
-      cell: ({ row }) => <StatusBadge value={row.original.category === "RESIDENTIAL" ? "Residential" : "Commercial"} />,
+      cell: ({ row }) => <StatusBadge value={row.original.category === "RESIDENTIAL" ? "Individual" : "Organization"} />,
     },
     { accessorKey: "projects", header: "Projects" },
     {
@@ -91,7 +91,7 @@ export function CustomersView({
       enableSorting: false,
       enableHiding: false,
       header: () => <span className="sr-only">Actions</span>,
-      cell: ({ row }) => (
+      cell: ({ row }) => !canManage && !canArchive ? null : (
         <div onClick={(event) => event.stopPropagation()}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -100,16 +100,8 @@ export function CustomersView({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {canManage && (
-                <DropdownMenuItem onSelect={() => beginEdit(row.original)}>
-                  <Pencil />Edit
-                </DropdownMenuItem>
-              )}
-              {canArchive && (
-                <DropdownMenuItem destructive onSelect={() => setArchiving(row.original)}>
-                  <Archive />Archive
-                </DropdownMenuItem>
-              )}
+              {canManage && <DropdownMenuItem onSelect={() => beginEdit(row.original)}><Pencil />Edit</DropdownMenuItem>}
+              {canArchive && <DropdownMenuItem destructive onSelect={() => setArchiving(row.original)}><Archive />Archive</DropdownMenuItem>}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -182,28 +174,28 @@ export function CustomersView({
     }
   }
 
-  const residential = customers.filter((customer) => customer.category === "RESIDENTIAL").length;
-  const commercial = customers.length - residential;
+  const individuals = customers.filter((customer) => customer.category === "RESIDENTIAL").length;
+  const organizations = customers.length - individuals;
 
   return (
     <div className="space-y-5">
       <PageHeader
         title="Customers"
-        description="A central record of residential and commercial customers and their solar projects."
+        description="A central record of people and organizations your business works with."
         actions={canManage ? <Button onClick={beginCreate}><Plus />Add customer</Button> : undefined}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard label="Active customers" value={customers.length} icon={Users} hint="Current records" />
-        <KpiCard label="Residential" value={residential} icon={Users} hint="Home solar customers" />
-        <KpiCard label="Commercial" value={commercial} icon={Users} hint="Business customers" />
+        <KpiCard label="Individuals" value={individuals} icon={Users} hint="Personal customers" />
+        <KpiCard label="Organizations" value={organizations} icon={Users} hint="Business accounts" />
       </div>
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter customers by category">
         {([
           ["ALL", "All", customers.length],
-          ["RESIDENTIAL", "Residential", residential],
-          ["COMMERCIAL", "Commercial", commercial],
+          ["RESIDENTIAL", "Individuals", individuals],
+          ["COMMERCIAL", "Organizations", organizations],
         ] as const).map(([value, label, count]) => (
           <Button
             key={value}
@@ -229,8 +221,8 @@ export function CustomersView({
           Phone: customer.phone,
           Email: customer.email ?? "",
           Address: customer.address ?? "",
-          District: customer.district ?? "",
-          Category: customer.category,
+          Region: customer.district ?? "",
+          Category: customer.category === "RESIDENTIAL" ? "Individual" : "Organization",
           Projects: customer.projects,
           "Project Value (INR)": customer.projectValue,
           "Outstanding (INR)": customer.outstandingBalance,
@@ -262,12 +254,12 @@ export function CustomersView({
                 <div className="space-y-1.5">
                   <Label htmlFor="customer-category">Category</Label>
                   <select id="customer-category" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value === "COMMERCIAL" ? "COMMERCIAL" : "RESIDENTIAL" })} className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm">
-                    <option value="RESIDENTIAL">Residential</option>
-                    <option value="COMMERCIAL">Commercial</option>
+                      <option value="RESIDENTIAL">Individual</option>
+                      <option value="COMMERCIAL">Organization</option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="customer-district">District</Label>
+                  <Label htmlFor="customer-district">Region</Label>
                   <Input id="customer-district" value={form.district} onChange={(event) => setForm({ ...form, district: event.target.value })} maxLength={100} />
                 </div>
               </div>

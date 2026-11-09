@@ -21,11 +21,11 @@ export function EnquiryGrowthChart({ data, className }: { data: Point[]; classNa
       <div className="h-60" role="img" aria-label="Area chart of new enquiries per month">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ left: -20, right: 8, top: 8 }}>
-            <defs><linearGradient id="gEnq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#35A9F4" stopOpacity={0.35} /><stop offset="100%" stopColor="#35A9F4" stopOpacity={0} /></linearGradient></defs>
+            <defs><linearGradient id="gEnq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--brand)" stopOpacity={0.4} /><stop offset="100%" stopColor="var(--brand)" stopOpacity={0} /></linearGradient></defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
             <XAxis dataKey="month" {...axisProps} /><YAxis allowDecimals={false} {...axisProps} />
             <Tooltip contentStyle={tooltipStyle} />
-            <Area type="monotone" dataKey="enquiries" stroke="#35A9F4" strokeWidth={2.5} fill="url(#gEnq)" animationDuration={1000} />
+            <Area type="monotone" dataKey="enquiries" stroke="var(--brand)" strokeWidth={2.5} fill="url(#gEnq)" animationDuration={1000} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -43,7 +43,7 @@ export function RevenueChart({ data, className }: { data: Point[]; className?: s
             <XAxis dataKey="month" {...axisProps} />
             <YAxis {...axisProps} tickFormatter={(v: number) => formatINR(v, true).replace("₹", "")} />
             <Tooltip contentStyle={tooltipStyle} formatter={(v) => formatINR(Number(v))} cursor={{ fill: "var(--muted)" }} />
-            <Bar dataKey="revenue" fill="#35A9F4" radius={[5, 5, 0, 0]} animationDuration={900} />
+            <Bar dataKey="revenue" fill="var(--brand)" radius={[5, 5, 0, 0]} animationDuration={900} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -54,7 +54,7 @@ export function RevenueChart({ data, className }: { data: Point[]; className?: s
 export function FunnelChart({ data, className }: { data: { stage: string; value: number }[]; className?: string }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
-    <ChartCard title="Lead conversion funnel" description="Enquiry to installation" className={className}>
+    <ChartCard title="Lead conversion funnel" description="Lead to project" className={className}>
       <ul className="space-y-3">
         {data.map((d, i) => (
           <li key={d.stage}>
@@ -97,16 +97,16 @@ export function DonutChart({ title, description, data, className }: { title: str
   );
 }
 
-export function CapacityChart({ data, className }: { data: { name: string; value: number }[]; className?: string }) {
+export function PlanTierChart({ data, className }: { data: { name: string; value: number }[]; className?: string }) {
   return (
-    <ChartCard title="Solar capacity distribution" description="Enquiries by system size" className={className}>
-      <div className="h-48" role="img" aria-label="Bar chart of enquiries by capacity">
+    <ChartCard title="Plan tier distribution" description="Leads by selected tier" className={className}>
+      <div className="h-48" role="img" aria-label="Bar chart of leads by plan tier">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ left: -20, right: 8, top: 8 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
             <XAxis dataKey="name" {...axisProps} /><YAxis allowDecimals={false} {...axisProps} />
             <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--muted)" }} />
-            <Bar dataKey="value" fill="#1E7FC4" radius={[5, 5, 0, 0]} animationDuration={900} />
+            <Bar dataKey="value" fill="var(--brand)" radius={[5, 5, 0, 0]} animationDuration={900} />
           </BarChart>
         </ResponsiveContainer>
       </div>

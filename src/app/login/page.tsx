@@ -1,50 +1,22 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import { authenticate } from "./actions";
-import { BrandLogo } from "@/components/shared/brand-logo";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import type { Metadata } from "next";
+import { LoginForm } from "@/components/auth/login-form";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-  const session = await auth();
-  if (session?.user?.id) redirect("/dashboard");
+export const metadata: Metadata = { title: "Sign in" };
 
+export default function LoginPage() {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-sidebar p-12 lg:flex solar-lines">
-        <BrandLogo />
-        <div>
-          <h1 className="max-w-md text-3xl font-semibold leading-tight tracking-tight text-white">From first enquiry to after-sales service — one place.</h1>
-          <p className="mt-3 max-w-md text-sm text-sidebar-foreground">Demo template. All data shown is fictional.</p>
+    <main className="login-backdrop flex min-h-dvh items-center justify-center overflow-hidden px-4 py-12">
+      <div className="login-orbit pointer-events-none absolute -right-24 -top-32 size-96 rounded-full" aria-hidden />
+      <div className="login-orbit login-orbit-delayed pointer-events-none absolute -bottom-40 -left-20 size-[28rem] rounded-full" aria-hidden />
+      <section className="relative z-10 w-full max-w-md rounded-2xl border bg-card/90 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
+        <div className="mb-8">
+          <div className="mb-6 flex size-12 items-center justify-center rounded-xl bg-brand text-lg font-bold text-brand-foreground shadow-lg">R</div>
+          <p className="text-sm font-semibold tracking-wide text-brand">RANZOM TECH</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight">Welcome to Ranzom CRM</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in to continue to your business workspace.</p>
         </div>
-        <p className="text-xs text-sidebar-muted">© Ranzom Solar Solutions</p>
-      </div>
-      <div className="flex items-center justify-center p-6">
-        <form
-          className="w-full max-w-sm space-y-5"
-          action={authenticate}
-        >
-          <div className="lg:hidden"><BrandLogo tone="auto" /></div>
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Sign in</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Sign in with your Ranzom Solar account.</p>
-          </div>
-          {error === "credentials" && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              Email or password is incorrect.
-            </p>
-          )}
-          <div className="space-y-1.5"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" autoComplete="username" required /></div>
-          <div className="space-y-1.5"><Label htmlFor="pw">Password</Label><Input id="pw" name="password" type="password" autoComplete="current-password" required /></div>
-          <Button type="submit" size="lg" className="w-full">Sign in</Button>
-        </form>
-      </div>
-    </div>
+        <LoginForm />
+      </section>
+    </main>
   );
 }
