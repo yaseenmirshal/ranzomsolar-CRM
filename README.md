@@ -21,7 +21,7 @@ Use Node.js 22.18+ (or 24.11+) and a reachable PostgreSQL database.
    cp .env.example .env
    ```
 
-2. Set `DATABASE_URL` to your PostgreSQL connection string and generate a strong random `AUTH_SECRET` (for example, `openssl rand -base64 32`). Both are required at runtime; do not use a `NEXT_PUBLIC_` prefix. To skip sign-in in local development, set `DEMO_MODE=true`. This grants a local demo super-admin and redirects `/login` to the dashboard. The bypass only works with the development server and is ignored in production.
+2. Set `DATABASE_URL` to your PostgreSQL connection string and generate a strong random `AUTH_SECRET` (for example, `openssl rand -base64 32`). Both are required at runtime; do not use a `NEXT_PUBLIC_` prefix. To skip sign-in in local development, set `DEMO_MODE=true`. This grants a local demo super-admin and redirects `/login` to the dashboard. The bypass only works with the development server and is ignored in production; keep the `/login` route for production sign-in.
 
 3. Emit the Prisma contract, then initialize an empty database and provision an administrator. Only initialize a database that is confirmed empty:
 
