@@ -136,7 +136,7 @@ function ThemeSwitcher() {
   );
 }
 
-export function Header({ user }: { user: { name: string | null; email: string | null } }) {
+export function Header({ user, isDemoMode = false }: { user: { name: string | null; email: string | null }; isDemoMode?: boolean }) {
   const router = useRouter();
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const palette = useUiStore((s) => s.palette);
@@ -191,9 +191,13 @@ export function Header({ user }: { user: { name: string | null; email: string | 
             <span className="block max-w-56 truncate">{user.name || "Account"}</span>
             {user.email && <span className="block max-w-56 truncate text-xs font-normal text-muted-foreground">{user.email}</span>}
           </DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => { void signOut({ redirectTo: "/login" }); }}>
-            <LogOut />Sign out
-          </DropdownMenuItem>
+          {isDemoMode ? (
+            <DropdownMenuLabel>Local demo access</DropdownMenuLabel>
+          ) : (
+            <DropdownMenuItem onSelect={() => { void signOut({ redirectTo: "/login" }); }}>
+              <LogOut />Sign out
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

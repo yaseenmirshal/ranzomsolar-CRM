@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getActiveUser } from "@/lib/auth/authorization";
+import { getActiveUser, isDemoMode } from "@/lib/auth/authorization";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <IntroLoader />
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header user={{ name: user.name, email: user.email }} />
+        <Header user={{ name: user.name, email: user.email }} isDemoMode={isDemoMode} />
         <DataSourceNotice />
         <main id="main" className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 md:px-6 lg:px-8">
           <PageTransition>{children}</PageTransition>

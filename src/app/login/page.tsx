@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
+import { isDemoMode } from "@/lib/auth/authorization";
 
 export const metadata: Metadata = { title: "Sign in" };
 
 export default function LoginPage() {
+  if (isDemoMode) redirect("/dashboard");
+
   return (
     <main className="login-backdrop flex min-h-dvh items-center justify-center overflow-hidden px-4 py-12">
       <div className="login-orbit pointer-events-none absolute -right-24 -top-32 size-96 rounded-full" aria-hidden />

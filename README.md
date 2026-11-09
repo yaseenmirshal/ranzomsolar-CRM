@@ -21,7 +21,7 @@ Use Node.js 22.18+ (or 24.11+) and a reachable PostgreSQL database.
    cp .env.example .env
    ```
 
-2. Set `DATABASE_URL` to your PostgreSQL connection string and generate a strong random `AUTH_SECRET` (for example, `openssl rand -base64 32`). Both are required at runtime; do not use a `NEXT_PUBLIC_` prefix.
+2. Set `DATABASE_URL` to your PostgreSQL connection string and generate a strong random `AUTH_SECRET` (for example, `openssl rand -base64 32`). Both are required at runtime; do not use a `NEXT_PUBLIC_` prefix. To skip sign-in in local development, set `DEMO_MODE=true`. This grants a local demo super-admin and redirects `/login` to the dashboard. The bypass only works with the development server and is ignored in production.
 
 3. Emit the Prisma contract, then initialize an empty database and provision an administrator. Only initialize a database that is confirmed empty:
 
@@ -32,7 +32,7 @@ Use Node.js 22.18+ (or 24.11+) and a reachable PostgreSQL database.
    npm run db:create-admin
    ```
 
-   The provisioning script prompts for the admin details and hashes the password. To provide a custom account non-interactively, set `ADMIN_EMAIL`, `ADMIN_NAME`, and `ADMIN_PASSWORD` in the private `.env` file before running `npm run db:create-admin`; use a password of at least 12 characters. These variables are only used by the provisioning command, not by login. Remove `ADMIN_PASSWORD` from `.env` after the account is provisioned. Do not commit `.env` or share its contents. For an existing database, do not run `db:init` or `db:migrate` until its schema has been inspected and adopted.
+   The provisioning script prompts for the admin details and hashes the password. To provide a custom account non-interactively, set `ADMIN_EMAIL`, `ADMIN_NAME`, and `ADMIN_PASSWORD` in the private `.env` file before running `npm run db:create-admin`; use a password of at least 12 characters. These variables are only used by the provisioning command, not by login. Remove `ADMIN_PASSWORD` from `.env` after the account is provisioned. Demo mode does not require provisioning an administrator. Do not commit `.env` or share its contents. For an existing database, do not run `db:init` or `db:migrate` until its schema has been inspected and adopted.
 
 4. Start Next.js:
 
@@ -40,7 +40,7 @@ Use Node.js 22.18+ (or 24.11+) and a reachable PostgreSQL database.
    npm run dev
    ```
 
-Sign in at `/login` with the administrator email and password that you provisioned. There are no built-in credentials.
+With `DEMO_MODE=true`, open the app without signing in. Otherwise, sign in at `/login` with the administrator email and password that you provisioned. There are no built-in credentials.
 
 ## Deployment
 
